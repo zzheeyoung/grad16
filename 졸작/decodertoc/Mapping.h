@@ -28,8 +28,8 @@ void Mapping(int *bit_in, int *data_re, int *data_im, int *module_param){
 
   int BPSK[2] = { -BPSK_0,BPSK_0 }; //BPSK[0] = -1,BPSK[1] = 1
   int QPSK[2] = { -QPSK_0,QPSK_0 }; //QPSK[0] = -1, QPSK[1] = 1
-  int QAM16[4] = { -QAM16_0,-QAM16_1,QAM16_0,QAM16_1 };
-  int QAM64[8] = { -QAM64_0,-QAM64_1,-QAM64_2,-QAM64_3,QAM64_3,QAM64_2,QAM64_1,QAM64_0 };
+  int QAM16[4] = { -QAM16_0,-QAM16_1,QAM16_0,QAM16_1 };//QAM16[0] = -3, QAM16[1] = -1, QAM16[2] = 3, QAM16[3] = 1
+  int QAM64[8] = { -QAM64_0,-QAM64_1,-QAM64_2,-QAM64_3,QAM64_3,QAM64_2,QAM64_1,QAM64_0 };//QAM64[0] = -7 QAM64[1] = -5 QAM64[2] = -3 QAM64[3] = -1 QAM64[4] = 1 QAM64[5] = 3 QAM64[6] = 5 QAM64[7] = 7;
 
   float ltf[64] =
 	{0, 0, 0, 0, 0, 0, 1, 1, -1, -1, 1, 1, -1, 1, -1, 1,
@@ -126,14 +126,14 @@ void Mapping(int *bit_in, int *data_re, int *data_im, int *module_param){
 		for(i=0; i<module_param[3]*48; i++)
 		{
 			if(bit_temp[i+48][0] == 1)
-				x[i+48] = 1;
+				x[i+48] = QPSK[1];
 			else
-				x[i+48] = -1;
+				x[i+48] = QPSK[0];
 
 			if(bit_temp[i+48][1] == 1)
-				y[i+48] = 1;
+				y[i+48] = QPSK[1];
 			else
-				y[i+48] = -1;
+				y[i+48] = QPSK[0];
 		}
 		break;
 	//16QAM
@@ -142,20 +142,20 @@ void Mapping(int *bit_in, int *data_re, int *data_im, int *module_param){
 		{
 			if(bit_temp[i+48][0] == 1)
 			{
-				if(bit_temp[i+48][1] ==0) x[i+48] = 3;
-				else x[i+48] = 1;
+				if(bit_temp[i+48][1] ==0) x[i+48] = QAM16[2];
+				else x[i+48] = QAM16[3];
 			}
 			else{
-				if(bit_temp[i+48][1] ==0) x[i+48] = -3;
-				else x[i+48] = -1;
+				if(bit_temp[i+48][1] ==0) x[i+48] = QAM16[0];
+				else x[i+48] = QAM16[1];
 			}
 			if(bit_temp[i+48][2] == 1){
-				if(bit_temp[i+48][3] ==0) y[i+48] = 3;
-				else y[i+48] = 1;
+				if(bit_temp[i+48][3] ==0) y[i+48] = QAM16[2];
+				else y[i+48] = QAM16[3];
 			}
 			else{
-				if(bit_temp[i+48][3] ==0) y[i+48] = -3;
-				else y[i+48] = -1;
+				if(bit_temp[i+48][3] ==0) y[i+48] = QAM16[0];
+				else y[i+48] = QAM16[1];
 			}
 		}
 		break;
@@ -169,31 +169,31 @@ void Mapping(int *bit_in, int *data_re, int *data_im, int *module_param){
 				if(bit_temp[i+48][1] == 0)
 				{
 					if(bit_temp[i+48][2] == 0)
-						x[i+48] = 7;
+						x[i+48] = QAM64[7];
 					else
-						x[i+48] = 5;
+						x[i+48] = QAM64[6];
 				}
 				else
 				{//110 or 111
 					if(bit_temp[i+48][2] == 0)
-						x[i+48] = 1;
+						x[i+48] = QAM64[4];
 					else
-						x[i+48] = 3;
+						x[i+48] = QAM64[5];
 				}
 			}
 			else{
 				if(bit_temp[i+48][1] == 0)
 				{//000 or 001
 					if(bit_temp[i+48][2] == 0)
-						x[i+48] = -7;
+						x[i+48] = QAM64[0];
 					else
-						x[i+48] = -5;
+						x[i+48] = QAM64[1];
 				}
 				else{//010 or 011
 					if(bit_temp[i+48][2] == 0)
-						x[i+48] = -1;
+						x[i+48] = QAM64[3];
 					else
-						x[i+48] = -3;
+						x[i+48] = QAM64[2];
 				}
 			}
 
@@ -203,16 +203,16 @@ void Mapping(int *bit_in, int *data_re, int *data_im, int *module_param){
 				if(bit_temp[i+48][4] == 0)
 				{
 					if(bit_temp[i+48][5] == 0)
-						y[i+48] = 7;
+						y[i+48] = QAM64[7];
 					else
-						y[i+48] = 5;
+						y[i+48] = QAM64[6];
 				}
 				else
 				{//110 or 111
 					if(bit_temp[i+48][5] == 0)
-						y[i+48] = 1;
+						y[i+48] = QAM64[4];
 					else
-						y[i+48] = 3;
+						y[i+48] = QAM64[5];
 				}
 			}
 			else
@@ -220,16 +220,16 @@ void Mapping(int *bit_in, int *data_re, int *data_im, int *module_param){
 				if(bit_temp[i+48][4] == 0)
 				{//000 or 001
 					if(bit_temp[i+48][5] == 0)
-						y[i+48] = -7;
+						y[i+48] = QAM64[0];
 					else
-						y[i+48] = -5;
+						y[i+48] = QAM64[1];
 				}
 				else
 				{//010 or 011
 					if(bit_temp[i+48][5] == 0)
-						y[i+48] = -1;
+						y[i+48] = QAM64[3];
 					else
-						y[i+48] = -3;
+						y[i+48] = QAM64[2];
 				}
 			}
 		}

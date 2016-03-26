@@ -25,8 +25,8 @@
 #include "Soft_Demapper.h"
 #include "data_gen.h"
 #include "SNR_calc.h"
-#include "FFT_float.h"
-#include "IFFT_float.h"
+//#include "FFT_float.h"
+//#include "IFFT_float.h"
 #include "MULTI_NO_DOPPLER.h"
 #include "ltf_gen.h"
 #include "stf_gen.h"
@@ -41,6 +41,9 @@
 #include "newdecoder.h"
 #include "TextOutput.h"
 #include "TextOutput_.h"
+#include "COMPLEX.h"
+#include "INT_ifft.h"
+#include "INT_fft.h"
 
 using namespace std;
 
@@ -363,31 +366,32 @@ void main()
 	fading_I = new float[length_ppdu];
 	fading_Q = new float[length_ppdu];
 
-	float *fft_in_re;
-	float *fft_in_im;
-	fft_in_re = new float[64];
-	fft_in_im = new float[64];
+	int *fft_in_re;
+	int *fft_in_im;
+	fft_in_re = new int[64];
+	fft_in_im = new int[64];
 
-	float *fft_out_re;
-	float *fft_out_im;
-	fft_out_re = new float[64];
-	fft_out_im = new float[64];
+	int *fft_out_re;
+	int *fft_out_im;
+	fft_out_re = new int[64];
+	fft_out_im = new int[64];
+	
+	//FFT<float> fft;
+	//fft.num_sym = 64;
 
-	FFT<float> fft;
-	fft.num_sym = 64;
+	int *ifft_in_re;
+	int *ifft_in_im;
+	ifft_in_re = new int[64];
+	ifft_in_im = new int[64];
+	
 
-	float *ifft_in_re;
-	float *ifft_in_im;
-	ifft_in_re = new float[64];
-	ifft_in_im = new float[64];
+	int *ifft_out_re;
+	int *ifft_out_im;
+	ifft_out_re = new int[64];
+	ifft_out_im = new int[64];
 
-	float *ifft_out_re;
-	float *ifft_out_im;
-	ifft_out_re = new float[64];
-	ifft_out_im = new float[64];
-
-	IFFT<float> ifft;
-	ifft.num_sym = 64;
+	//IFFT<float> ifft;
+	//ifft.num_sym = 64;
 
 	int *rx_freq_re, *rx_freq_im;
 	rx_freq_re = new int[length_ppdu];
@@ -467,7 +471,7 @@ void main()
 	int frame_inf, tmp_frane, toggle, frame_length;
 	int Parity_check = 0;
 
-	for (MCS = 0; MCS <= 0; MCS++)
+	for (MCS = 0; MCS <= 7; MCS++)
 	{
 		switch (MCS)
 		{
@@ -673,12 +677,13 @@ void main()
 						ifft_in_re[k] = data_re[64 * i + k];
 						ifft_in_im[k] = data_im[64 * i + k];
 					}
-					ifft.in_I = ifft_in_re;
+					/*ifft.in_I = ifft_in_re;
 					ifft.in_Q = ifft_in_im;
 					ifft.out_I = ifft_out_re;
 					ifft.out_Q = ifft_out_im;
 					ifft.initialize();
-					ifft.proc_IFFT();
+					ifft.proc_IFFT();*/
+					IFFT_64pt(ifft_in_re, ifft_in_im, ifft_out_re , ifft_out_im);
 
 					for (k = 0; k<64; k++)
 					{
@@ -693,6 +698,8 @@ void main()
 						ppdu_im[320 + 80 * i + k] = ifft_out_im[48 + k];
 					}
 				}
+				//if (snr == 10)
+				//	TextOutput(&received_I[0], "..\\..\\stfltf.txt",320);
 
 				//Channel
 				multi_no_doppler(ppdu_re, ppdu_im, (float)_rms_delay, length_ppdu, (float)_sample_rate, (float)_ave_pow,
@@ -712,7 +719,8 @@ void main()
 				//Noise
 				AwgnGen(received_I, received_I, length_ppdu, 1 / sqrt(128));
 				AwgnGen(received_Q, received_Q, length_ppdu, 1 / sqrt(128));
-
+				//AwgnGen(received_I, received_I, length_ppdu, 250);
+				//AwgnGen(received_Q, received_Q, length_ppdu, 250);
 				noise_power = 0;
 
 				//synchronizer
@@ -768,12 +776,13 @@ void main()
 							}
 						}
 					}
-					fft.in_I = fft_in_re;
+					/*fft.in_I = fft_in_re;
 					fft.in_Q = fft_in_im;
 					fft.out_I = fft_out_re;
 					fft.out_Q = fft_out_im;
 					fft.initialize();
-					fft.proc_FFT();
+					fft.proc_FFT();*/
+					FFT_64pt(fft_in_re, fft_in_im, fft_out_re, fft_out_im );
 					for (k = 0; k<64; k++)
 					{
 						rx_freq_re[80 * j + 16 + k] = fft_out_re[k];
