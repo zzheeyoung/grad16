@@ -2,11 +2,11 @@
 
 using namespace std;
 
-void punct(float *bit_in_encod, float *bit_out, int *module_param){
+void punct(int *bit_in_encod, int *bit_out, int *module_param){
 
 	int i, k, j;
 	int val;
-	float in_temp[6] = {0};
+	int in_temp[6] = {0};
 
 	//Data Part
 	switch(module_param[1])

@@ -1,4 +1,4 @@
-void interleaving(float *bit_out_encod, float *bit_out_int, int *module_param){
+void interleaving(int *bit_out_encod, int *bit_out_int, int *module_param){
 	unsigned short inter_table[288];
 	unsigned short tmp_addr;
 

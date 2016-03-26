@@ -2,10 +2,23 @@
 #include "cmath"
 
 #define sym_num_max 500
+#define SQRT2 sqrt(2.0)
+#define SQRT10 sqrt(10.0)
+#define SQRT42 sqrt(42.0)
 
+#define BPSK_0 (int)(pow(2.0,TX_MAPPING_SCALE_UP) + 0.5)
+#define QPSK_0 (int)((pow(2.0,TX_MAPPING_SCALE_UP))/SQRT2 + 0.5)
+
+#define QAM16_0 (int)((3*pow(2.0,TX_MAPPING_SCALE_UP))/SQRT10 + 0.5)
+#define QAM16_1 (int)((pow(2.0,TX_MAPPING_SCALE_UP))/SQRT10 + 0.5)
+
+#define QAM64_0 (int)((7*pow(2.0,TX_MAPPING_SCALE_UP))/SQRT42 + 0.5)
+#define QAM64_1 (int)((5*pow(2.0,TX_MAPPING_SCALE_UP))/SQRT42 + 0.5)
+#define QAM64_2 (int)((3*pow(2.0,TX_MAPPING_SCALE_UP))/SQRT42 + 0.5)
+#define QAM64_3 (int)((pow(2.0,TX_MAPPING_SCALE_UP))/SQRT42 + 0.5)
 //Data generation mode
 //1-BPSK, 2-QPSK, 3-16QAM, 4-64QAM
-void Mapping(float *bit_in,float *data_re, float *data_im, int *module_param){
+void Mapping(int *bit_in, int *data_re, int *data_im, int *module_param){
   int i, k;
   int cnt;
 
@@ -13,13 +26,18 @@ void Mapping(float *bit_in,float *data_re, float *data_im, int *module_param){
   float x[sym_num_max*48]={0},y[sym_num_max*48]={0};
   float data_re_temp[64]={0}, data_im_temp[64]={0};
 
+  int BPSK[2] = { -BPSK_0,BPSK_0 }; //BPSK[0] = -1,BPSK[1] = 1
+  int QPSK[2] = { -QPSK_0,QPSK_0 }; //QPSK[0] = -1, QPSK[1] = 1
+  int QAM16[4] = { -QAM16_0,-QAM16_1,QAM16_0,QAM16_1 };
+  int QAM64[8] = { -QAM64_0,-QAM64_1,-QAM64_2,-QAM64_3,QAM64_3,QAM64_2,QAM64_1,QAM64_0 };
+
   float ltf[64] =
 	{0, 0, 0, 0, 0, 0, 1, 1, -1, -1, 1, 1, -1, 1, -1, 1,
 	 1, 1, 1, 1, 1, -1, -1, 1, 1, -1, 1, -1, 1, 1, 1, 1,
 	 0, 1, -1, -1, 1, 1,-1, 1, -1, 1, -1, -1, -1, -1, -1, 1,
 	 1, -1, -1, 1, -1, 1, -1, 1, 1, 1, 1, 0, 0, 0, 0, 0};
 
-  float pilot[64]=
+  int pilot[64]=
 	{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 
@@ -30,6 +48,8 @@ void Mapping(float *bit_in,float *data_re, float *data_im, int *module_param){
 	1,1,-1,1, 1,-1,-1,1, 1,1,-1,1, -1,-1,-1,1, -1,1,-1,-1, 1,-1,-1,1, 1,1,1,1, -1,-1,1,1,
 	-1,-1,1,-1, 1,-1,1,1,-1,-1,-1,1, 1,-1,-1,-1, -1,1,-1,-1, 1,-1,1,1, 1,1,-1,1, -1,1,-1,1,
 	-1,-1,-1,-1, -1,1,-1,1, 1,-1,1,-1, 1,1,1,-1, -1,1,-1,-1, -1,1,1,1, -1,-1,-1,-1, -1,-1,-1};
+  for (i = 0; i<64; i++)
+	  pilot[i] <<= TX_MAPPING_SCALE_UP;
 
   //signal
   for(i=0; i<48; i++)
@@ -39,9 +59,9 @@ void Mapping(float *bit_in,float *data_re, float *data_im, int *module_param){
   {
 	  y[i] = 0;
 	  if(bit_temp[i][0] == 1)
-		  x[i] = 1;
+		  x[i] = BPSK[1];
 	  else
-		  x[i] = -1;
+		  x[i] = BPSK[0];
   }
 
 
@@ -96,9 +116,9 @@ void Mapping(float *bit_in,float *data_re, float *data_im, int *module_param){
 		{
 			y[i+48] = 0;
 			if(bit_temp[i+48][0] == 1)
-				x[i+48] = 1;
+				x[i+48] = BPSK[1];
 			else
-				x[i+48] = -1;
+				x[i+48] = BPSK[0];
 		}
 		break;
 	//QPSK
@@ -219,9 +239,9 @@ void Mapping(float *bit_in,float *data_re, float *data_im, int *module_param){
 		{
 			y[i+48] = 0;
 			if(bit_temp[i+48][0] == 1)
-				x[i+48] = 1;
+				x[i+48] = BPSK[1];
 			else
-				x[i+48] = -1;
+				x[i+48] = BPSK[0];
 		}
 		break;
 	}
@@ -251,16 +271,16 @@ void Mapping(float *bit_in,float *data_re, float *data_im, int *module_param){
 					data_im_temp[k] = (float)y[48*i + cnt];
 					break;
 				case 96:
-					data_re_temp[k] = (float)x[48*i + cnt]/(float)sqrt(2);
-					data_im_temp[k] = (float)y[48*i + cnt]/(float)sqrt(2);
+					data_re_temp[k] = (float)x[48*i + cnt];
+					data_im_temp[k] = (float)y[48*i + cnt];
 					break;
 				case 192:
-					data_re_temp[k] = (float)x[48*i + cnt]/(float)sqrt(10);
-					data_im_temp[k] = (float)y[48*i + cnt]/(float)sqrt(10);
+					data_re_temp[k] = (float)x[48*i + cnt];
+					data_im_temp[k] = (float)y[48*i + cnt];
 					break;
 				case 288:
-					data_re_temp[k] = (float)x[48*i + cnt]/(float)sqrt(42);
-					data_im_temp[k] = (float)y[48*i + cnt]/(float)sqrt(42);
+					data_re_temp[k] = (float)x[48*i + cnt];
+					data_im_temp[k] = (float)y[48*i + cnt];
 					break;
 				default:
 					break;

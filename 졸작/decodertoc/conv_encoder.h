@@ -6,7 +6,7 @@ using namespace std;
 
 //Data generation mode
 //1-BPSK, 2-QPSK, 3-16QAM, 4-64QAM
-void conv_encoder(int *bit_in, float *bit_in_encod, int *module_param)
+void conv_encoder(int *bit_in, int *bit_in_encod, int *module_param)
 {
 	int conv_reg[6] = {0};
 	int in,temp;

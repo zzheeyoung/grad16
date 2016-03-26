@@ -1,4 +1,4 @@
-void depunct(float *bit_in_encod, float *bit_out, int *module_param,int toggle, int frame_inf){
+void depunct(int *bit_in_encod, int *bit_out, int *module_param,int toggle, int frame_inf){
 	int i, j;
 	float in_temp[4] = {0};
 

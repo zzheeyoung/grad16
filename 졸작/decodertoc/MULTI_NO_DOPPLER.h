@@ -3,7 +3,7 @@
 #include "AwgnGen.h"
 
 using namespace std;
-int multi_no_doppler(float *I_input, float *Q_input, float rms_delay, int input_size, 
+int multi_no_doppler(int *I_input, int *Q_input, float rms_delay, int input_size,
 					  float data_rate, float ave_pow, float *I_output, float *Q_output,
 					  float *Ipath_coeff, float *Qpath_coeff, bool ch_gen,float tx_signal_scaling, float *power_channel)
 					  // data_rate는 Mega단위이다.

@@ -1,7 +1,7 @@
 #include <stdio.h>
 
 
-void bm_gen(float *input, int start, float *bm00, float *bm01, float *bm10, float *bm11, int toggle)
+void bm_gen(int *input, int start, float *bm00, float *bm01, float *bm10, float *bm11, int toggle)
 {
 	//int toggle;
 	float in_a, in_b;
@@ -97,7 +97,7 @@ void Trace_back(int *path, int address, int mode, int bank[64][64], int *start_i
 	}
 }
 
-void Viterbi(float *input, int *output, float frame_length_bc, int toggle)
+void Viterbi(int *input, int *output, float frame_length_bc, int toggle)
 {
 	int bank0[64][64];
 	int bank1[64][64];
@@ -136,7 +136,7 @@ void Viterbi(float *input, int *output, float frame_length_bc, int toggle)
 	int temp_out;
 
 	int i = 0, j = 0, p = 0, w = 0;
-	float flush_data[2] = { -1.0, -1.0 };
+	int flush_data[2] = { -1, -1 };
 
 	int temp;
 

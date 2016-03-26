@@ -6,7 +6,7 @@
 
 float Normal(float x, float sd);
 // AWGN 
-int AwgnGen(float *input_buffer, float *output_buffer
+int AwgnGen(int *input_buffer, int *output_buffer
 			, int buffer_length, float EbNo)
 {
 	int i;

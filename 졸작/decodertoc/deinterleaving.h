@@ -1,4 +1,4 @@
-void deinterleaving(float *bit_out_encod, float *bit_out_int, int *module_param,int toggle, int frame_inf){
+void deinterleaving(int *bit_out_encod, int *bit_out_int, int *module_param,int toggle, int frame_inf){
 	unsigned short inter_table[288];
 	unsigned short tmp_addr;
 	int sym_num_tmp = module_param[3];

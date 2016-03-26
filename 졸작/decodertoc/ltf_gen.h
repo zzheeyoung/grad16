@@ -3,21 +3,29 @@
 
 using namespace std;
 
-void ltf_gen(float *I_pre, float *Q_pre)
+void ltf_gen(int *I_pre, int *Q_pre)
 {
-   float ltf[64] = 
+  /* float ltf[64] = 
      {0, 0, 0, 0, 0, 0, 1, 1, -1, -1, 1, 1, -1, 1, -1, 1,
 	 1, 1, 1, 1, 1, -1, -1, 1, 1, -1, 1, -1, 1, 1, 1, 1,
 	 0, 1, -1, -1, 1, 1,-1, 1, -1, 1, -1, -1, -1, -1, -1, 1,
 	 1, -1, -1, 1, -1, 1, -1, 1, 1, 1, 1, 0, 0, 0, 0, 0};
+	*/
 	/*float ltf[64] = 
      {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
 	 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
 	 1, 1, 1, 1, 1, 1,1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
 	 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};*/
-
+	int ltf[64] =
+	{ 0, 0, 0, 0, 0, 0, 1, 1, -1, -1, 1, 1, -1, 1, -1, 1,
+		1, 1, 1, 1, 1, -1, -1, 1, 1, -1, 1, -1, 1, 1, 1, 1,
+		0, 1, -1, -1, 1, 1,-1, 1, -1, 1, -1, -1, -1, -1, -1, 1,
+		1, -1, -1, 1, -1, 1, -1, 1, 1, 1, 1, 0, 0, 0, 0, 0 };
+	int i;
+	for (i = 0; i<64; i++)
+		ltf[i] <<= TX_LTF_SCALE_UP;
   
-  int i;
+//  int i;
   float ltf_norm;
   
   float *ifft_in_re;
@@ -51,10 +59,14 @@ void ltf_gen(float *I_pre, float *Q_pre)
   ltf_norm = ((float)sqrt(1));
 
   for (i=0; i<64; i++){
-	  I_pre[i] =ifft_out_re[i]*ltf_norm;
+	  /*I_pre[i] =ifft_out_re[i]*ltf_norm;
 	  Q_pre[i] = ifft_out_im[i]*ltf_norm;
 	  I_pre[64+i] = ifft_out_re[i]*ltf_norm;
-	  Q_pre[64+i] = ifft_out_im[i]*ltf_norm;
+	  Q_pre[64+i] = ifft_out_im[i]*ltf_norm;*/
+	  I_pre[i] = ifft_out_re[i] ;
+	  Q_pre[i] = ifft_out_im[i] ;
+	  I_pre[64 + i] = ifft_out_re[i];
+	  Q_pre[64 + i] = ifft_out_im[i];
   }
 }
 

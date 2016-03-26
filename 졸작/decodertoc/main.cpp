@@ -2,7 +2,21 @@
 #include<math.h>
 #include<iostream>
 #include<fstream>
+#define TX_SCALE_UP 11
+#define TX_STF_SCALE_UP TX_SCALE_UP
+#define TX_LTF_SCALE_UP TX_SCALE_UP
+#define TX_MAPPING_SCALE_UP TX_SCALE_UP
+#define TX_IFFT_MULT_SCALE_DN 10
+#define TX_IFFT_SUM_SCALE_DN 0
+#define TX_IFFT_OUT_SCALE_DN 0
 
+#define RX_FFT_MULT_SCALE_DN 10
+#define RX_FFT_SUM_SCALE_DN 0
+#define RX_FFT_OUT_SCALE_DN 0
+#define RX_SCALE_UP 4//0		//4
+#define RX_H_SCALE_DN 10//5		//10
+#define RX_EQ_SCALE_UP 2//11	//2
+#define RX_DM_SCALE_UP 1//5		//1
 #include "channel_equalizer.h"
 #include "channel_est.h"
 #include "scrambler.h"
@@ -25,6 +39,8 @@
 //#include "Soft_Viterbi_decoder.h"
 #include "synchronizer.h"
 #include "newdecoder.h"
+#include "TextOutput.h"
+#include "TextOutput_.h"
 
 using namespace std;
 
@@ -111,7 +127,7 @@ void main()
 	float snr_lin;  //linear val.
 	float tx_signal_scaling;
 
-	float *ppdu_re;
+	/*float *ppdu_re;
 	float *ppdu_im;
 	ppdu_re = new float[length_ppdu];
 	ppdu_im = new float[length_ppdu];
@@ -125,11 +141,25 @@ void main()
 	float *data_im;
 	data_re = new float[sym_num_max * 64];
 	data_im = new float[sym_num_max * 64];
+	*/
+	int *ppdu_re;
+	int *ppdu_im;
+	ppdu_re = new int[length_ppdu];
+	ppdu_im = new int[length_ppdu];
 
+	int *ltf_re;
+	int *ltf_im;
+	ltf_re = new int[128];
+	ltf_im = new int[128];
+
+	int *data_re;
+	int *data_im;
+	data_re = new int[sym_num_max * 64];
+	data_im = new int[sym_num_max * 64];
 
 	//BPSK - sym_num*1*48, QPSK - sym_num*2*48
 	//16-QAM - sym_num*4*48, 64-QAM - sym_num*6*48 모두 지원 
-	int *bit_in;
+	/*int *bit_in;
 	int *bit_scram;
 	float *bit_in_encod;
 	float *bit_in_punct;
@@ -175,8 +205,56 @@ void main()
 	float *stf_re;
 	float *stf_im;
 	stf_re = new float[64];
-	stf_im = new float[64];
+	stf_im = new float[64];*/
+	int *bit_in;
+	int *bit_scram;
+	int *bit_in_encod;
+	int *bit_in_punct;
+	int *bit_in_int;
 
+	bit_in = new int[sym_num_max * 216];
+	bit_scram = new int[sym_num_max * 216];
+	bit_in_encod = new int[sym_num_max * 2 * 216];
+	bit_in_punct = new int[sym_num_max * 288];
+	bit_in_int = new int[sym_num_max * 288];
+
+	int *bit_out;
+	int *bit_out_depunct;
+	int *bit_out_int;
+	int *bit_out_decod;
+	int *bit_out_descram;
+
+	bit_out_decod = new int[sym_num_max * 216];
+	bit_out_descram = new int[sym_num_max * 216];
+	bit_out = new int[sym_num_max * 288];
+	bit_out_depunct = new int[sym_num_max * 2 * 288];
+	bit_out_int = new int[sym_num_max * 2 * 288];
+
+	int *ltf_re_ref;
+	int *ltf_im_ref;
+	ltf_re_ref = new int[128];
+	ltf_im_ref = new int[128];
+
+	int *data_out_re;
+	int *data_out_im;
+	data_out_re = new int[sym_num_max * 64];
+	data_out_im = new int[sym_num_max * 64];
+
+	int *fft_out_re_tmp;
+	int *fft_out_im_tmp;
+	fft_out_re_tmp = new int[sym_num_max * 64];
+	fft_out_im_tmp = new int[sym_num_max * 64];
+
+	int *rx_freq_re_ref_tmp, *rx_freq_im_ref_tmp;
+	rx_freq_re_ref_tmp = new int[sym_num_max * 64];
+	rx_freq_im_ref_tmp = new int[sym_num_max * 64];
+
+	int *stf_re;
+	int *stf_im;
+	stf_re = new int[64];
+	stf_im = new int[64];
+
+	/*
 	float *fading_I, *fading_Q;
 	float *received_I, *received_Q;
 	float *rx_no_awgn_I, *rx_no_awgn_Q;
@@ -261,6 +339,92 @@ void main()
 	float *out_im;
 	out_re = new float[sym_num_max * 64];
 	out_im = new float[sym_num_max * 64];
+	*/
+
+	float *fading_I, *fading_Q;
+	int *received_I, *received_Q;
+	int *rx_no_awgn_I, *rx_no_awgn_Q;
+
+	float *noise_I, *noise_Q;
+	float *h_I;
+	float *h_Q;
+
+	noise_I = new float[length_ppdu];
+	noise_Q = new float[length_ppdu];
+	h_I = new float[64];
+	h_Q = new float[64];
+
+	received_I = new int[length_ppdu];
+	received_Q = new int[length_ppdu];
+
+	rx_no_awgn_I = new int[length_ppdu + 80];
+	rx_no_awgn_Q = new int[length_ppdu + 80];
+
+	fading_I = new float[length_ppdu];
+	fading_Q = new float[length_ppdu];
+
+	float *fft_in_re;
+	float *fft_in_im;
+	fft_in_re = new float[64];
+	fft_in_im = new float[64];
+
+	float *fft_out_re;
+	float *fft_out_im;
+	fft_out_re = new float[64];
+	fft_out_im = new float[64];
+
+	FFT<float> fft;
+	fft.num_sym = 64;
+
+	float *ifft_in_re;
+	float *ifft_in_im;
+	ifft_in_re = new float[64];
+	ifft_in_im = new float[64];
+
+	float *ifft_out_re;
+	float *ifft_out_im;
+	ifft_out_re = new float[64];
+	ifft_out_im = new float[64];
+
+	IFFT<float> ifft;
+	ifft.num_sym = 64;
+
+	int *rx_freq_re, *rx_freq_im;
+	rx_freq_re = new int[length_ppdu];
+	rx_freq_im = new int[length_ppdu];
+
+	int *rx_freq_re_ref, *rx_freq_im_ref;
+	rx_freq_re_ref = new int[length_ppdu];
+	rx_freq_im_ref = new int[length_ppdu];
+
+	int *h_re;
+	int *h_im;
+	h_re = new int[64];
+	h_im = new int[64];
+
+	int *H_re;
+	int *H_im;
+	H_re = new int[64];
+	H_im = new int[64];
+
+	int *ltf1_re;
+	int *ltf1_im;
+	int *ltf2_re;
+	int *ltf2_im;
+	ltf1_re = new int[64];
+	ltf1_im = new int[64];
+	ltf2_re = new int[64];
+	ltf2_im = new int[64];
+
+	int *in_re;
+	int *in_im;
+	in_re = new int[sym_num_max * 64];
+	in_im = new int[sym_num_max * 64];
+
+	int *out_re;
+	int *out_im;
+	out_re = new int[sym_num_max * 64];
+	out_im = new int[sym_num_max * 64];
 
 	float noise_power;
 
@@ -560,7 +724,13 @@ void main()
 
 				// w/o noise
 				//synchronizer(rx_no_awgn_I, rx_no_awgn_Q, ltf_re_ref,ltf_im_ref,rx_no_awgn_I, rx_no_awgn_Q, length_ppdu);
-
+				for (i = 0; i < length_ppdu; i++)
+				{
+					received_I[i] *= 6;
+					received_Q[i] *= 6;
+				}
+				//if (snr == 10)
+				//	TextOutput(&received_I[0], "..\\..\\stfltf.txt",320);
 				//fft 
 				for (j = 0; j<num_ofdm + 1; j++)
 				{
@@ -626,7 +796,8 @@ void main()
 				}
 
 				channel_est(ltf1_re, ltf1_im, ltf2_re, ltf2_im, h_re, h_im);
-
+				//if (snr == 10)
+				//	TextOutput(&h_re[0], "..\\..\\h_re.txt",64);
 				for (i = 0; i<module_param[3] + 1; i++)
 				{
 					for (k = 0; k<64; k++)
@@ -769,8 +940,8 @@ void main()
 				else
 				{
 					//SNR
-					SNR[n][loop] = SNR_calc(data_re, data_im, data_out_re, data_out_im, module_param);
-					SNR_tot[n] += SNR[n][loop];
+					//SNR[n][loop] = SNR_calc(data_re, data_im, data_out_re, data_out_im, module_param);
+					//SNR_tot[n] += SNR[n][loop];
 
 					//BER
 					BER[n][loop] = ber(bit_in, bit_out_descram, MCS, module_param);

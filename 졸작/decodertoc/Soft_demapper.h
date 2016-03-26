@@ -7,7 +7,7 @@ using namespace std;
 #define sym_num 500
 
 //16QAM
-void DeMapper(float *data_re, float *data_im, float *bit_out,int *module_param, float *h_re, float *h_im, float tx_signal_scaling,int toggle,int frame_inf)
+void DeMapper(int *data_re, int *data_im, int *bit_out,int *module_param, int *h_re, int *h_im, float tx_signal_scaling,int toggle,int frame_inf)
 {
 	unsigned int temp;
 	int i, k;
