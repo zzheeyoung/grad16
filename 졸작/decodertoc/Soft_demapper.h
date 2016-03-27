@@ -6,6 +6,17 @@ using namespace std;
 
 #define sym_num 500
 
+int calc_a(int x, int n)
+
+{
+
+	if (n == 0) return 1.;
+
+	return (0.5 * (calc_a(x, n - 1) + x / calc_a(x, n - 1)));
+
+}
+
+
 //16QAM
 void DeMapper(int *data_re, int *data_im, int *bit_out,int *module_param, int *h_re, int *h_im, float tx_signal_scaling,int toggle,int frame_inf)
 {
@@ -30,7 +41,8 @@ void DeMapper(int *data_re, int *data_im, int *bit_out,int *module_param, int *h
 	{
 		if(ltf[i]!=0)
 		{
-			G_ch_temp[cnt] = (float)sqrt(h_re[i]*h_re[i] + h_im[i]*h_im[i])/(float)tx_signal_scaling;
+			//G_ch_temp[cnt] = (float)sqrt(h_re[i]*h_re[i] + h_im[i]*h_im[i])/(float)tx_signal_scaling;
+			G_ch_temp[cnt] = cal_a(h_re[i] * h_re[i] + h_im[i] * h_im[i],10);
 			cnt++;
 		}
 	}
